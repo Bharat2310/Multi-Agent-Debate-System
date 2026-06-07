@@ -13,27 +13,30 @@ const TypingIndicator = ({ label }) => (
   </div>
 );
 
-// 2. Typewriter Component with Citations & Copy Feature
+// 2. Typewriter Component with Citations, Copy Feature & Sanitization
 const TypewriterMessage = ({ content, triggerScroll }) => {
   const [displayed, setDisplayed] = useState("");
   const [copied, setCopied] = useState(false);
+
+  // SANITIZATION: Catch leaked tool calls like (Source: tavily_search(...)) and turn them into [1]
+  const sanitizedContent = content.replace(/\([Ss]ource[.:]?\s*tavily_search.*?\)\)/g, "[1]");
 
   useEffect(() => {
     setDisplayed(""); 
     let i = 0;
     const timer = setInterval(() => {
-      setDisplayed(content.substring(0, i + 2));
+      setDisplayed(sanitizedContent.substring(0, i + 2));
       i += 2;
       
       if (triggerScroll) triggerScroll();
 
-      if (i >= content.length) clearInterval(timer);
+      if (i >= sanitizedContent.length) clearInterval(timer);
     }, 15);
     return () => clearInterval(timer);
-  }, [content, triggerScroll]);
+  }, [sanitizedContent, triggerScroll]);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(content);
+    navigator.clipboard.writeText(sanitizedContent);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -43,10 +46,8 @@ const TypewriterMessage = ({ content, triggerScroll }) => {
     return parts.map((part, idx) => {
       if (part.match(/\[\d+\]/)) {
         return (
-          // FIX: Changed from "group" to "group/cite" to isolate hover state
           <span key={idx} className="relative group/cite inline-flex items-center justify-center w-5 h-5 ml-1 text-[10px] font-bold text-blue-400 bg-blue-900/30 border border-blue-800/50 rounded cursor-help align-super transition-colors hover:bg-blue-800/50">
             {part.replace(/[\[\]]/g, '')}
-            {/* FIX: Changed "group-hover:block" to "group-hover/cite:block" */}
             <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover/cite:block w-48 p-2 text-xs font-normal bg-zinc-800 text-zinc-200 rounded-lg border border-zinc-700 shadow-xl z-50">
               Source retrieved from vector index.
             </span>
@@ -58,18 +59,16 @@ const TypewriterMessage = ({ content, triggerScroll }) => {
   };
 
   return (
-    // FIX: Changed from "group" to "group/message" to isolate the copy button hover
     <div className="relative group/message">
       <span>{renderWithCitations(displayed)}</span>
       
-      {displayed.length < content.length && (
+      {displayed.length < sanitizedContent.length && (
         <span className="inline-block w-1.5 h-4 ml-1 align-middle bg-zinc-400 animate-pulse"></span>
       )}
 
-      {displayed.length === content.length && (
+      {displayed.length === sanitizedContent.length && (
         <button 
           onClick={handleCopy} 
-          // FIX: Changed "group-hover:opacity-100" to "group-hover/message:opacity-100"
           className="absolute -top-2 -right-2 p-1.5 bg-zinc-800 border border-zinc-700 text-zinc-400 rounded-md opacity-0 group-hover/message:opacity-100 transition-opacity hover:text-white hover:bg-zinc-700 shadow-lg"
           title="Copy argument"
         >
@@ -81,7 +80,7 @@ const TypewriterMessage = ({ content, triggerScroll }) => {
 };
 
 function App() {
-  const [topic, setTopic] = useState("Are apology videos effective?");
+  const [topic, setTopic] = useState("The normalization of digital ghosting fundamentally degrades our societal capacity for conflict resolution and accountability, creating a culture of disposable relationships.");
   const [messages, setMessages] = useState([]);
   const [isDebating, setIsDebating] = useState(false);
   const [finalVerdict, setFinalVerdict] = useState("");
