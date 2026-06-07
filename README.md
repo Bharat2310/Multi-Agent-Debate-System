@@ -1,4 +1,4 @@
-﻿# Axiom: Neural Debate Engine ⚖️
+# Axiom: Neural Debate Engine ⚖️
 
 Axiom is an advanced, full-stack multi-agent AI system that autonomously researches, formulates, and debates complex topics in real-time. Built with a sleek, minimalist UI, it orchestrates a live debate between an AI Proponent and Opponent, culminating in a final arbitration by an AI Judge.
 
@@ -25,6 +25,42 @@ Axiom is an advanced, full-stack multi-agent AI system that autonomously researc
 *   Python (3.9+)
 
 ### Frontend Setup
+
 1. Navigate to the frontend directory:
 ```bash
    cd frontend
+Install dependencies:
+
+Bash
+   npm install
+   npm install lucide-react
+Start the development server:
+
+Bash
+   npm run dev
+Backend Setup
+Navigate to the backend directory:
+
+Bash
+   cd backend
+Create a virtual environment and activate it:
+
+Bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows use: venv\Scripts\activate
+Install Python dependencies:
+
+Bash
+   pip install fastapi uvicorn langgraph langchain 
+Start the FastAPI server:
+
+Bash
+   uvicorn main:app --reload --port 8000
+🎯 Usage
+Ensure both the frontend development server and the FastAPI backend are running.
+
+Open your browser to the frontend URL (usually http://localhost:5173 or http://localhost:3000).
+
+Enter a debatable thesis in the Configuration panel (e.g., "Nuclear energy is the only viable solution to climate change.").
+
+Click Initialize Debate and watch the agents research and formulate their arguments in real-time.
