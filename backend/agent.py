@@ -1,21 +1,33 @@
-import os
+
 import re
 from typing import Annotated, List, TypedDict, Literal
 from dotenv import load_dotenv
 
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import BaseMessage, SystemMessage, AIMessage, HumanMessage, ToolMessage
 from langchain_tavily import TavilySearch
 from langchain_ollama import ChatOllama
 from langgraph.graph import StateGraph, START
 from langgraph.graph.message import add_messages
 from langgraph.checkpoint.memory import MemorySaver
-
+import os
 load_dotenv()
 
 # ==========================================
 # 1. Config & State
 # ==========================================
-llm = ChatOllama(model="llama3-groq-tool-use:8b", temperature=0.3)
+if os.getenv("GEMINI_API_KEY"):
+    llm = ChatGoogleGenerativeAI(
+        model="gemini-2.5-flash-lite", 
+        temperature=0.3,
+        api_key=os.getenv("GEMINI_API_KEY")
+    )
+else:
+    # Local Development: Fall back to your local Ollama instance
+    llm = ChatOllama(model="llama3-groq-tool-use:8b", temperature=0.3)
+
+
+
 search_tool = TavilySearch(max_results=3)
 
 class DebateState(TypedDict):
