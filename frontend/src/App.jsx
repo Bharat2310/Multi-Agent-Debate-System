@@ -142,7 +142,7 @@ function App() {
     abortControllerRef.current = new AbortController();
 
     try {
-      const response = await fetch("http://localhost:8000/stream_debate", {
+      const response = await fetch("https://multi-agent-debate-system-ve37.onrender.com/stream_debate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
