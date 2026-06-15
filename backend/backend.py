@@ -16,7 +16,7 @@ class DebateRequest(BaseModel):
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "multi-agent-debate-system-eta.vercel.app"], # Replace with your React app's URL if different
+    allow_origins=["http://localhost:5173", "https://multi-agent-debate-system-eta.vercel.app"], # Replace with your React app's URL if different
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
