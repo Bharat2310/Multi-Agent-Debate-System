@@ -38,11 +38,17 @@ async def stream_debate(req: DebateRequest):
                 if "messages" in state_update and len(state_update["messages"]) > 0:
                     latest_msg = state_update["messages"][-1]
                     
-                    if latest_msg.content:  
+                    if latest_msg.content:
+                        raw_content = latest_msg.content
+                        if isinstance(raw_content, list):
+                            content_str = "".join([b.get("text", "") if isinstance(b, dict) else str(b) for b in raw_content])
+                        else:
+                            content_str = str(raw_content)
+
                         payload = {
                             "node": node_name,
                             "name": latest_msg.name or node_name,
-                            "content": latest_msg.content,
+                            "content": content_str, # Use the safe string here
                             "verdict": state_update.get("verdict", ""),
                             "should_stop": state_update.get("should_stop", False) or state_update.get("turns_count", 0) >= MAX_ROUNDS
                         }

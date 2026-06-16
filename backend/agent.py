@@ -166,7 +166,6 @@ def judge(state: DebateState):
     
     response = llm.invoke([system_msg, user_msg])
     
-    # --- BUG FIX: Safely parse the content into a string ---
     raw_content = response.content
     if isinstance(raw_content, list):
         content_str = "".join([block.get("text", "") if isinstance(block, dict) else str(block) for block in raw_content])

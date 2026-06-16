@@ -18,8 +18,16 @@ const TypewriterMessage = ({ content, triggerScroll }) => {
   const [displayed, setDisplayed] = useState("");
   const [copied, setCopied] = useState(false);
 
-  // SANITIZATION: Catch leaked tool calls like (Source: tavily_search(...)) and turn them into [1]
-  const sanitizedContent = content.replace(/\([Ss]ource[.:]?\s*tavily_search.*?\)\)/g, "[1]");
+  let safeContent = "";
+  if (typeof content === "string") {
+    safeContent = content;
+  } else if (Array.isArray(content)) {
+    safeContent = content.map(block => block.text || block).join("");
+  } else {
+    safeContent = String(content || "");
+  }
+
+  const sanitizedContent = safeContent.replace(/\([Ss]ource[.:]?\s*tavily_search.*?\)\)/g, "[1]");
 
   useEffect(() => {
     setDisplayed(""); 
