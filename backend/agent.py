@@ -155,13 +155,26 @@ def judge(state: DebateState):
     transcript = "Debate Transcript So Far:\n"
     for msg in state["messages"]:
         if hasattr(msg, "name") and msg.name:
-            transcript += f"[{msg.name}]: {msg.content}\n\n"
+            # Prevent crashes if previous messages were also saved as lists
+            msg_text = msg.content
+            if isinstance(msg_text, list):
+                msg_text = "".join([b.get("text", "") if isinstance(b, dict) else str(b) for b in msg_text])
+            transcript += f"[{msg.name}]: {msg_text}\n\n"
             
     system_msg = SystemMessage(content=JUDGE_PROMPT.format(topic=state["topic"]))
     user_msg = HumanMessage(content=f"{transcript}\nReview the debate. Current Turn Count: {state.get('turns_count', 0) + 1}. If it's early, write CONTINUE. If complete, write VERDICT:")
     
     response = llm.invoke([system_msg, user_msg])
-    content = response.content.strip()
+    
+    # --- BUG FIX: Safely parse the content into a string ---
+    raw_content = response.content
+    if isinstance(raw_content, list):
+        content_str = "".join([block.get("text", "") if isinstance(block, dict) else str(block) for block in raw_content])
+    else:
+        content_str = str(raw_content)
+        
+    content = content_str.strip()
+    # -------------------------------------------------------
     
     cleaned_line = re.sub(r'[*#_`-]', '', content).strip().upper()
     is_verdict = cleaned_line.startswith("VERDICT")
